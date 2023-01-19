@@ -1,3 +1,4 @@
+import * as React from 'react';
 import Button from '@components/ui/button';
 import Input from '@components/ui/form/input';
 import Logo from '@components/ui/logo';
@@ -5,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@components/common/modal/modal.context';
 import CloseButton from '@components/ui/close-button';
+import OtpInput from 'react-otp-input';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
 
 type FormValues = {
   email: string;
@@ -14,9 +17,10 @@ const defaultValues = {
   email: '',
 };
 
-const ForgetPasswordForm = () => {
+const OtpVerifyForm = () => {
   const { t } = useTranslation();
   const { closeModal, openModal } = useModalAction();
+  const [otp, setOtp] = React.useState('');
   const {
     register,
     handleSubmit,
@@ -31,7 +35,14 @@ const ForgetPasswordForm = () => {
 
   const onSubmit = (values: FormValues) => {
     console.log(values, 'token');
-    return openModal('OTP_VERIFY');
+    if (!otp) {
+      ErrorToast('OTP is required');
+    } else if (otp?.length < 6) {
+      ErrorToast('OTP must been 6 digits');
+    } else {
+      SuccessToast('OTP verify sucessfull');
+      return openModal('RESET_PASSWORD');
+    }
   };
 
   return (
@@ -42,7 +53,7 @@ const ForgetPasswordForm = () => {
           <Logo />
         </div>
         <p className="text-sm md:text-base text-body mt-3 sm:mt-4 mb-8 sm:mb-10">
-          {t('common:forgot-password-helper')}
+          {t('Verify your OTP')}
         </p>
       </div>
       <form
@@ -50,8 +61,18 @@ const ForgetPasswordForm = () => {
         className="flex flex-col justify-center"
         noValidate
       >
-        <Input
-          label={t('forms:label-email')}
+        <OtpInput
+          value={otp}
+          onChange={(otp: any) => setOtp(otp)}
+          numInputs={6}
+          separator={<span style={{ margin: '0 9px' }}>-</span>}
+          inputStyle={{ height: '2.5em', width: '2.7em', border: '1px solid' }}
+          containerStyle={{ marginBottom: '30px' }}
+          isInputNum={true}
+          hasErrored={true}
+        />
+        {/* <Input
+          label={t('OTP')}
           type="email"
           variant="solid"
           className="mb-4"
@@ -64,14 +85,14 @@ const ForgetPasswordForm = () => {
             },
           })}
           error={errors.email?.message}
-        />
+        /> */}
 
         <Button
           type="submit"
           variant="formButton"
           className="h-11 md:h-12 w-full mt-0"
         >
-          {t('common:text-reset-password')}
+          {t('Verify OTP')}
         </Button>
       </form>
       <div className="flex flex-col items-center justify-center relative text-sm text-heading mt-8 sm:mt-10 mb-6 sm:mb-7">
@@ -94,4 +115,4 @@ const ForgetPasswordForm = () => {
   );
 };
 
-export default ForgetPasswordForm;
+export default OtpVerifyForm;

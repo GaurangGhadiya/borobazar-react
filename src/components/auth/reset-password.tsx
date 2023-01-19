@@ -5,16 +5,19 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@components/common/modal/modal.context';
 import CloseButton from '@components/ui/close-button';
+import PasswordInput from '@components/ui/form/password-input';
 
 type FormValues = {
-  email: string;
+  confirmPassword: string;
+  password: string;
 };
 
 const defaultValues = {
-  email: '',
+  confirmPassword: '',
+  password: '',
 };
 
-const ForgetPasswordForm = () => {
+const ResetPasswordform = () => {
   const { t } = useTranslation();
   const { closeModal, openModal } = useModalAction();
   const {
@@ -31,7 +34,7 @@ const ForgetPasswordForm = () => {
 
   const onSubmit = (values: FormValues) => {
     console.log(values, 'token');
-    return openModal('OTP_VERIFY');
+    return openModal('LOGIN_VIEW');
   };
 
   return (
@@ -42,7 +45,7 @@ const ForgetPasswordForm = () => {
           <Logo />
         </div>
         <p className="text-sm md:text-base text-body mt-3 sm:mt-4 mb-8 sm:mb-10">
-          {t('common:forgot-password-helper')}
+          {t('Create a new password')}
         </p>
       </div>
       <form
@@ -50,20 +53,22 @@ const ForgetPasswordForm = () => {
         className="flex flex-col justify-center"
         noValidate
       >
-        <Input
-          label={t('forms:label-email')}
-          type="email"
-          variant="solid"
-          className="mb-4"
-          {...register('email', {
-            required: `${t('forms:email-required')}`,
-            pattern: {
-              value:
-                /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-              message: t('forms:email-error'),
-            },
+        <PasswordInput
+          type="tel"
+          label={t('forms:label-password')}
+          {...register('password', {
+            required: 'forms:password-required',
           })}
-          error={errors.email?.message}
+          className="mb-4"
+          error={errors.password?.message}
+        />
+        <PasswordInput
+          label={t('forms:label-confirm-password')}
+          {...register('confirmPassword', {
+            required: 'forms:password-required',
+          })}
+          error={errors.confirmPassword?.message}
+          className="mb-4"
         />
 
         <Button
@@ -94,4 +99,4 @@ const ForgetPasswordForm = () => {
   );
 };
 
-export default ForgetPasswordForm;
+export default ResetPasswordform;

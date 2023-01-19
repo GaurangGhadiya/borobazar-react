@@ -9,7 +9,9 @@ type MODAL_VIEWS =
   | 'PHONE_NUMBER'
   | 'DELIVERY_VIEW'
   | 'PRODUCT_VIEW'
-  | 'CATEGORY_VIEW';
+  | 'CATEGORY_VIEW'
+  | 'OTP_VERIFY'
+  | 'RESET_PASSWORD';
 
 interface State {
   view?: MODAL_VIEWS;

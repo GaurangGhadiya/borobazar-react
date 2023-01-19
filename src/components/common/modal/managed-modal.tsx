@@ -6,6 +6,10 @@ import {
 } from '@components/common/modal/modal.context';
 const LoginForm = dynamic(() => import('@components/auth/login-form'));
 const SignUpForm = dynamic(() => import('@components/auth/sign-up-form'));
+const OtpVerifyForm = dynamic(() => import('@components/auth/otp-verify'));
+const ResetPasswordform = dynamic(
+  () => import('@components/auth/reset-password')
+);
 const ForgetPasswordForm = dynamic(
   () => import('@components/auth/forget-password-form')
 );
@@ -41,6 +45,8 @@ const ManagedModal: React.FC = () => {
       {view === 'LOGIN_VIEW' && <LoginForm />}
       {view === 'SIGN_UP_VIEW' && <SignUpForm />}
       {view === 'FORGET_PASSWORD' && <ForgetPasswordForm />}
+      {view === 'OTP_VERIFY' && <OtpVerifyForm />}
+      {view === 'RESET_PASSWORD' && <ResetPasswordform />}
       {view === 'PRODUCT_VIEW' && <ProductPopup />}
       {view === 'ADDRESS_VIEW_AND_EDIT' && <AddressPopup />}
       {view === 'PAYMENT' && <PaymentPopup />}
