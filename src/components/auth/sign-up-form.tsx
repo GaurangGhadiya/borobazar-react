@@ -13,6 +13,11 @@ import Switch from '@components/ui/switch';
 import CloseButton from '@components/ui/close-button';
 import cn from 'classnames';
 import { ROUTES } from '@utils/routes';
+import { baseUrl } from '@framework/utils/http';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
+import axios from 'axios';
+import { useUI } from '@contexts/ui.context';
+import Cookies from 'js-cookie';
 
 interface SignUpFormProps {
   isPopup?: boolean;
@@ -24,6 +29,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   className,
 }) => {
   const { t } = useTranslation();
+  const { authorize } = useUI();
   const { mutate: signUp, isLoading } = useSignUpMutation();
   const { closeModal, openModal } = useModalAction();
   const [remember, setRemember] = useState(false);
@@ -39,13 +45,33 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   function handleForgetPassword() {
     return openModal('FORGET_PASSWORD');
   }
-  function onSubmit({ name, email, password, remember_me }: SignUpInputType) {
-    signUp({
-      name,
-      email,
-      password,
-      remember_me,
-    });
+  function onSubmit({
+    firstName,
+    lastName,
+    email,
+    password,
+    remember_me,
+  }: SignUpInputType) {
+    axios
+      .post(`${baseUrl}/user/signup`, { firstName, lastName, email, password })
+      .then((response: any) => {
+        console.log('response', response);
+        SuccessToast(response?.data?.message);
+        // Cookies.set('authToken', response?.data?.token);
+        // authorize();
+        closeModal();
+      })
+      .catch((error) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
+    // signUp({
+    //   firstName,
+    //   lastName,
+    //   email,
+    //   password,
+    //   remember_me,
+    // });
     console.log(name, email, password, 'sign form values');
   }
   return (
@@ -91,21 +117,33 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             noValidate
           >
             <div className="flex flex-col space-y-4">
-              <Input
-                label={t('forms:label-name')}
-                type="text"
-                variant="solid"
-                {...register('name', {
-                  required: 'forms:name-required',
-                })}
-                error={errors.name?.message}
-              />
+              <div className="flex flex-col sm:flex-row">
+                <Input
+                  label={'First ' + t('forms:label-name')}
+                  type="text"
+                  variant="solid"
+                  {...register('firstName', {
+                    required: 'forms:first-name-required',
+                  })}
+                  error={errors.firstName?.message}
+                />
+                &nbsp;&nbsp;&nbsp;
+                <Input
+                  label={'Last ' + t('forms:label-name')}
+                  type="text"
+                  variant="solid"
+                  {...register('lastName', {
+                    required: 'forms:last-name-required',
+                  })}
+                  error={errors.lastName?.message}
+                />
+              </div>
               <Input
                 label={t('forms:label-email')}
                 type="email"
                 variant="solid"
                 {...register('email', {
-                  required: `${t('forms:email-required')}`,
+                  required: `${t('forms:label-email-required')}`,
                   pattern: {
                     value:
                       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,

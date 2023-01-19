@@ -18,7 +18,8 @@ export const useLogoutMutation = () => {
   const { unauthorize } = useUI();
   return useMutation(() => logout(), {
     onSuccess: (_data) => {
-      Cookies.remove('auth_token');
+      Cookies.remove('authToken');
+      localStorage.clear();
       unauthorize();
       Router.push('/');
     },

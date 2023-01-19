@@ -12,9 +12,12 @@ import Switch from '@components/ui/switch';
 import CloseButton from '@components/ui/close-button';
 import { FaFacebook, FaTwitter, FaLinkedinIn } from 'react-icons/fa';
 import cn from 'classnames';
-import axios from "axios"
+import axios from 'axios';
 import { baseUrl } from '@framework/utils/http';
-
+import useWindowSize from '@utils/use-window-size';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
+import { useUI } from '@contexts/ui.context';
+import Cookies from 'js-cookie';
 interface LoginFormProps {
   isPopup?: boolean;
   className?: string;
@@ -22,6 +25,8 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ isPopup = true, className }) => {
   const { t } = useTranslation();
+  const { authorize } = useUI();
+
   const { closeModal, openModal } = useModalAction();
   const { mutate: login, isLoading } = useLoginMutation();
   const [remember, setRemember] = useState(false);
@@ -33,19 +38,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ isPopup = true, className }) => {
   } = useForm<LoginInputType>();
 
   function onSubmit({ email, password, remember_me }: LoginInputType) {
-    axios.post(`${baseUrl}/user/login`, { email,  password, remember}).then((response) => {
-      console.log("response", response);
-      closeModal();
-    }).catch((error) => {
-      console.log("error", error);
-    })
-    // login({
-    //   email,
-    //   password,
-    //   remember_me,
-    // });
-    // 
-    console.log(email, password, remember_me,remember, 'data');
+    axios
+      .post(`${baseUrl}/user/login`, { email, password })
+      .then((response: any) => {
+        console.log('response', response);
+        SuccessToast(response?.data?.message);
+        Cookies.set('authToken', response?.data?.data?.token);
+        localStorage.setItem('userData', JSON.stringify(response?.data?.data));
+        authorize();
+        closeModal();
+      })
+      .catch((error) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
   }
   function handelSocialLogin() {
     login({

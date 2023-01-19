@@ -13,7 +13,7 @@ async function forgetPassword() {
 export const useForgetPasswordMutation = () => {
   return useMutation(() => forgetPassword(), {
     onSuccess: (_data) => {
-      Cookies.remove('auth_token');
+      Cookies.remove('authToken');
     },
     onError: (data) => {
       console.log(data, 'forget password error response');

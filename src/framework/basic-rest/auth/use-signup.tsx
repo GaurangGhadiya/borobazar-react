@@ -5,19 +5,20 @@ import { useMutation } from 'react-query';
 export interface SignUpInputType {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   remember_me: boolean;
 }
 async function signUp(input: SignUpInputType) {
   return {
-    token: `${input.email}.${input.name}`.split('').reverse().join(''),
+    token: `${input.email}.${input.firstName}`.split('').reverse().join(''),
   };
 }
 export const useSignUpMutation = () => {
   const { authorize, closeModal } = useUI();
   return useMutation((input: SignUpInputType) => signUp(input), {
     onSuccess: (data) => {
-      Cookies.set('auth_token', data.token);
+      Cookies.set('authToken', data.token);
       authorize();
       closeModal();
     },

@@ -20,6 +20,7 @@ import '@styles/swiper-carousel.css';
 import '@styles/custom-plugins.css';
 import '@styles/tailwind.css';
 import { getDirection } from '@utils/get-direction';
+import { Toaster } from 'react-hot-toast';
 
 const Noop: React.FC = ({ children }) => <>{children}</>;
 
@@ -40,6 +41,7 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
       <Hydrate state={pageProps.dehydratedState}>
         <ManagedUIContext>
           <>
+            <Toaster position="top-center" reverseOrder={false} />
             <DefaultSeo />
             <Layout pageProps={pageProps}>
               <Component {...pageProps} key={router.route} />
