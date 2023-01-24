@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import React from 'react';
 import CategoryCard from '@components/cards/category-card';
 import SectionHeader from '@components/common/section-header';
 import CategoryCardLoader from '@components/ui/loaders/category-card-loader';
@@ -8,6 +9,9 @@ import Alert from '@components/ui/alert';
 import { SwiperSlide } from 'swiper/react';
 import useWindowSize from '@utils/use-window-size';
 import { LIMITS } from '@framework/utils/limits';
+import axios from 'axios';
+import { baseUrl, header } from '@framework/utils/http';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
 const Carousel = dynamic(() => import('@components/ui/carousel/carousel'), {
   ssr: false,
 });
@@ -41,15 +45,35 @@ const breakpoints = {
     spaceBetween: 15,
   },
 };
+let error: any = null;
 
 const CategoryGridBlock: React.FC<CategoriesProps> = ({
   className = 'md:pt-3 lg:pt-0 3xl:pb-2 mb-12 sm:mb-14 md:mb-16 xl:mb-24 2xl:mb-16',
 }) => {
   const { width } = useWindowSize();
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const { data, isLoading, error } = useCategoriesQuery({
-    limit: LIMITS.CATEGORIES_LIMITS,
-  });
+  // const { data, isLoading, error } = useCategoriesQuery({
+  //   limit: LIMITS.CATEGORIES_LIMITS,
+  // });
+
+  const getUserData = async () => {
+    await axios
+      .get(`${baseUrl}/admin/get_category`, header)
+      .then((response: any) => {
+        console.log('response', response);
+        setData(response?.data?.data);
+      })
+      .catch((error: any) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
+  };
+
+  React.useEffect(() => {
+    getUserData();
+  }, []);
 
   return (
     <div className={className}>
@@ -75,13 +99,13 @@ const CategoryGridBlock: React.FC<CategoriesProps> = ({
                     </SwiperSlide>
                   );
                 })
-              : data?.categories?.data?.slice(0, 16)?.map((category) => (
-                  <SwiperSlide key={`category--key-${category.id}`}>
+              : data?.slice(0, 16)?.map((category: any) => (
+                  <SwiperSlide key={`category--key-${category?._id}`}>
                     <CategoryCard
                       item={category}
                       href={{
                         pathname: ROUTES.SEARCH,
-                        query: { category: category.slug },
+                        query: { category: category?.name },
                       }}
                     />
                   </SwiperSlide>
@@ -99,13 +123,13 @@ const CategoryGridBlock: React.FC<CategoriesProps> = ({
             );
           })
         ) : (
-          data?.categories?.data?.slice(0, 16).map((category) => (
+          data?.slice(0, 16).map((category: any) => (
             <CategoryCard
-              key={`category--key-${category.id}`}
+              key={`category--key-${category?._id}`}
               item={category}
               href={{
                 pathname: ROUTES.SEARCH,
-                query: { category: category.slug },
+                query: { category: category?.name },
               }}
               className="flex-shrink-0 2xl:px-3.5 2xl:w-[12.5%] 3xl:w-1/9 mb-12"
             />

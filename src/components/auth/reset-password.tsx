@@ -6,6 +6,9 @@ import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@components/common/modal/modal.context';
 import CloseButton from '@components/ui/close-button';
 import PasswordInput from '@components/ui/form/password-input';
+import { baseUrl } from '@framework/utils/http';
+import axios from 'axios';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
 
 type FormValues = {
   confirmPassword: string;
@@ -34,7 +37,27 @@ const ResetPasswordform = () => {
 
   const onSubmit = (values: FormValues) => {
     console.log(values, 'token');
-    return openModal('LOGIN_VIEW');
+    if (values?.password !== values?.confirmPassword) {
+      ErrorToast('Password and Confirm Password must be same');
+    } else {
+      axios
+        .post(`${baseUrl}/user/reset_password`, {
+          password: values?.password,
+          id: localStorage.getItem('id'),
+        })
+        .then((response: any) => {
+          console.log('response', response);
+          SuccessToast(response?.data?.message);
+          localStorage.removeItem('id');
+
+          closeModal();
+          return openModal('LOGIN_VIEW');
+        })
+        .catch((error: any) => {
+          console.log('error', error);
+          ErrorToast(error?.message);
+        });
+    }
   };
 
   return (
@@ -54,7 +77,6 @@ const ResetPasswordform = () => {
         noValidate
       >
         <PasswordInput
-          type="tel"
           label={t('forms:label-password')}
           {...register('password', {
             required: 'forms:password-required',

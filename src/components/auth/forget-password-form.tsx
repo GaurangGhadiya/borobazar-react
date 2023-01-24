@@ -5,6 +5,10 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@components/common/modal/modal.context';
 import CloseButton from '@components/ui/close-button';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
+import { useUI } from '@contexts/ui.context';
+import { baseUrl } from '@framework/utils/http';
+import axios from 'axios';
 
 type FormValues = {
   email: string;
@@ -16,6 +20,8 @@ const defaultValues = {
 
 const ForgetPasswordForm = () => {
   const { t } = useTranslation();
+  const { authorize } = useUI();
+
   const { closeModal, openModal } = useModalAction();
   const {
     register,
@@ -31,7 +37,19 @@ const ForgetPasswordForm = () => {
 
   const onSubmit = (values: FormValues) => {
     console.log(values, 'token');
-    return openModal('OTP_VERIFY');
+    axios
+      .post(`${baseUrl}/user/forgot_password`, values)
+      .then((response: any) => {
+        console.log('response', response);
+        SuccessToast(response?.data?.message);
+        localStorage.setItem('reset_email', response?.data?.data?.email);
+        closeModal();
+        return openModal('OTP_VERIFY');
+      })
+      .catch((error: any) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
   };
 
   return (

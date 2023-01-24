@@ -10,22 +10,61 @@ import {
 import { useTranslation } from 'next-i18next';
 import Switch from '@components/ui/switch';
 import Text from '@components/ui/text';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { baseUrl, header } from '@framework/utils/http';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
 
 const defaultValues = {};
 
 const AccountDetails: React.FC = () => {
   const { mutate: updateUser, isLoading } = useUpdateUserMutation();
+  const [userData, setUserData] = useState({});
   const { t } = useTranslation();
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     control,
   } = useForm<UpdateUserType>({
     defaultValues,
   });
+
+  const getUserData = async () => {
+    await axios
+      .get(`${baseUrl}/user/get_profile`, header)
+      .then((response: any) => {
+        console.log('response', response);
+        setUserData(response?.data?.data);
+        setValue('email', response?.data?.data?.email);
+        setValue('phoneNumber', response?.data?.data?.phoneNumber);
+        setValue('firstName', response?.data?.data?.firstName);
+        setValue('lastName', response?.data?.data?.lastName);
+      })
+      .catch((error) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   function onSubmit(input: UpdateUserType) {
-    updateUser(input);
+    axios
+      .put(`${baseUrl}/user/update_profile`, input, header)
+      .then((response: any) => {
+        console.log('response', response);
+        getUserData();
+        SuccessToast(response.data?.message);
+      })
+      .catch((error) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
+    // updateUser(input);
   }
   return (
     <div className="w-full flex flex-col">
@@ -61,7 +100,7 @@ const AccountDetails: React.FC = () => {
             </div>
             <div className="flex flex-col sm:flex-row -mx-1.5 md:-mx-2.5 space-y-4 sm:space-y-0">
               <Input
-                type="tel"
+                type="number"
                 label={t('forms:label-phone')}
                 {...register('phoneNumber', {
                   required: 'forms:phone-required',
@@ -70,16 +109,31 @@ const AccountDetails: React.FC = () => {
                 className="w-full sm:w-1/2 px-1.5 md:px-2.5"
                 error={errors.phoneNumber?.message}
               />
+              <Input
+                type="email"
+                label={t('forms:label-email-star')}
+                {...register('email', {
+                  required: 'forms:email-required',
+                  pattern: {
+                    value:
+                      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    message: 'forms:email-error',
+                  },
+                })}
+                variant="solid"
+                className="w-full sm:w-1/2 px-1.5 md:px-2.5"
+                error={errors.email?.message}
+              />
             </div>
           </div>
         </div>
-        <Heading
+        {/* <Heading
           variant="titleLarge"
           className="mb-5 xl:mb-8 pt-6 md:pt-7 lg:pt-8"
         >
           {t('common:text-account-details-account')}
-        </Heading>
-        <div className="border-skin-base border-b pb-7 md:pb-9 lg:pb-10">
+        </Heading> */}
+        {/* <div className="border-skin-base border-b pb-7 md:pb-9 lg:pb-10">
           <div className="flex flex-col space-y-4 sm:space-y-5">
             <div className="flex flex-col sm:flex-row -mx-1.5 md:-mx-2.5 space-y-4 sm:space-y-0">
               <Input
@@ -118,7 +172,7 @@ const AccountDetails: React.FC = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="relative flex pt-6 md:pt-8 lg:pt-10">
           <div className="pe-2.5">
             <Heading className="font-medium mb-1">

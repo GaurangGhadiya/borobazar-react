@@ -12,4 +12,8 @@ module.exports = withPWA({
   typescript: {
     ignoreBuildErrors: true,
   },
+  reactStrictMode: true,
+  images: {
+    domains: ['res.cloudinary.com'],
+  },
 });

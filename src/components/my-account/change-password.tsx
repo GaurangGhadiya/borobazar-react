@@ -8,6 +8,9 @@ import {
   useChangePasswordMutation,
   ChangePasswordInputType,
 } from '@framework/customer/use-change-password';
+import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
+import { baseUrl, header } from '@framework/utils/http';
+import axios from 'axios';
 
 const defaultValues = {
   oldPassword: '',
@@ -21,12 +24,27 @@ const ChangePassword: React.FC = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ChangePasswordInputType>({
     defaultValues,
   });
   function onSubmit(input: ChangePasswordInputType) {
-    changePassword(input);
+    axios
+      .post(
+        `${baseUrl}/user/change_password`,
+        { old_password: input.oldPassword, new_password: input.newPassword },
+        header
+      )
+      .then((response: any) => {
+        console.log('response', response);
+        SuccessToast(response?.data?.message);
+        reset();
+      })
+      .catch((error) => {
+        console.log('error', error);
+        ErrorToast(error?.message);
+      });
   }
   return (
     <>

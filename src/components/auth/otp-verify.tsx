@@ -8,6 +8,8 @@ import { useModalAction } from '@components/common/modal/modal.context';
 import CloseButton from '@components/ui/close-button';
 import OtpInput from 'react-otp-input';
 import { ErrorToast, SuccessToast } from '@framework/utils/Toast';
+import { baseUrl } from '@framework/utils/http';
+import axios from 'axios';
 
 type FormValues = {
   email: string;
@@ -40,8 +42,24 @@ const OtpVerifyForm = () => {
     } else if (otp?.length < 6) {
       ErrorToast('OTP must been 6 digits');
     } else {
-      SuccessToast('OTP verify sucessfull');
-      return openModal('RESET_PASSWORD');
+      axios
+        .post(`${baseUrl}/user/otp_verification`, {
+          otp,
+          email: localStorage.getItem('reset_email'),
+        })
+        .then((response: any) => {
+          console.log('response', response);
+          SuccessToast(response?.data?.message);
+          localStorage.removeItem('reset_email');
+          localStorage.setItem('id', response?.data?.data?._id);
+          closeModal();
+          return openModal('RESET_PASSWORD');
+        })
+        .catch((error: any) => {
+          console.log('error', error);
+          ErrorToast(error?.message);
+        });
+      // SuccessToast('OTP verify sucessfull');
     }
   };
 

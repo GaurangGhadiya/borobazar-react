@@ -4,6 +4,13 @@ import { getToken } from './get-token';
 export const baseUrl =
   'http://localhost:8000' || process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
 
+const token = getToken();
+export const header = {
+  headers: {
+    Authorization: `${token ? token : ''}`,
+  },
+};
+
 const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
   timeout: 30000,

@@ -32,7 +32,7 @@ const CategoryCard: React.FC<Props> = ({ item, href, className }) => {
           }`}
         >
           <Image
-            src={image?.original ?? categoryPlaceholder}
+            src={image ?? categoryPlaceholder}
             alt={name || t('text-card-thumbnail')}
             width={178}
             height={178}
@@ -48,7 +48,7 @@ const CategoryCard: React.FC<Props> = ({ item, href, className }) => {
           }`}
         >
           <Image
-            src={image?.original ?? categoryPlaceholder}
+            src={image ?? categoryPlaceholder}
             alt={name || t('text-card-thumbnail')}
             width={178}
             height={178}
